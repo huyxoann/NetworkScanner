@@ -35,11 +35,14 @@ class MainController:
 
         # Gửi gói tin và nhận phản hồi
         result = srp(packet, timeout=1, verbose=0)[0]
+        device_info = []
 
         # In thông tin về các thiết bị đã kết nối
         for sent, received in result:
-            print(f"IP: {received.psrc}, MAC: {received.hwsrc} ")
-        return result
+            device_info_item = [received.psrc, received.hwsrc]
+            device_info.append(device_info_item)
+            print(f"IP: {received.psrc}, MAC: {received.hwsrc}")
+        return device_info
 
     def get_router_ip(self=None):
         sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

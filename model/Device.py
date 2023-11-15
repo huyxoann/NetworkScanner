@@ -11,15 +11,5 @@ class Device:
         self.connect_status = connect_status
         self.network_protocol = network_protocol
 
-    # def get_host_from_ip(self):
-    #     temp = self.ip.split(".")[3]
-    #     if temp == "1":
-    #         return "Router"
-    #     try:
-    #         hostname, _, _ = socket.gethostbyaddr(self.ip)
-    #         return hostname
-    #     except socket.herror:
-    #         return "Generic"
-
     def __str__(self):
-        return f'{self.hostname}: {self.ip}'
+        return f'{self.ip}'

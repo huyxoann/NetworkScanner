@@ -1,4 +1,5 @@
 import socket
+import threading
 
 from PySide6 import QtCore
 from PySide6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, QProgressBar,
@@ -78,35 +79,31 @@ class MainWindow(QWidget):
 
         self.window_layout.addLayout(self.layout)
 
-        self.scanningDialog = ScanningDialog()
-
         MainWindow.setLayout(self.window_layout)
 
     def display_devices(self):
         self.deviceList.clear()
-        self.progress_bar.show()
-        self.progress_bar.setValue(20)
-        self.devices = MainController.scan_network(self.router_ip)
+        self.devices = MainController.scan_network(MainController.get_router_ip())
 
-
-
-        for device in self.devices:
-            item = DeviceItem(device.__str__())
-            self.add_item(item)
+        for device_info in self.devices:
+            my_thread = threading.Thread(target=self.add_item, args=(device_info, ))
+            my_thread.start()
+        print("Scan Done!")
 
         # self.scanningDialog.close()
         self.progress_bar.setValue(100)
         self.display_num_devices()
 
-    def add_item(self, device):
-        self.deviceList.addItem(device)
+    def add_item(self, device_info):
+        device = Device(ip=device_info[0], mac=device_info[1])
+        item = DeviceItem(device)
+        self.deviceList.addItem(item)
 
     def display_num_devices(self):
         self.num_devices.setText(f'Số thiết bị đang hoạt động: {len(self.devices)} thiết bị.')
 
     def get_router_ip(self):
         local_ip = MainController.get_ip()
-
         parts = local_ip.split('.')
         router_ip = f'{parts[0]}.{parts[1]}.{parts[2]}.1'
         return router_ip

@@ -1,7 +1,7 @@
 import model.Device as Device
 
 
-class DeviceController(Device):
+class DeviceController:
 
-    def getDevice(self):
+    def getDevice(self=None):
         pass
