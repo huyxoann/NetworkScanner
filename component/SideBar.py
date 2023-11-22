@@ -1,8 +1,8 @@
 from PySide6 import QtCore
-from PySide6.QtGui import QIcon, QPixmap
-from PySide6.QtWidgets import QVBoxLayout, QPushButton
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QVBoxLayout
 
-from assets .icon import CustomIcon as icon
+from assets.icon import CustomIcon as icon
 from component.SideBarButton import SideBarButton
 
 
@@ -14,7 +14,5 @@ class SideBar(QVBoxLayout):
         self.menu_icon = QIcon(icon.menuIcon)
         self.main_window_btn.setIcon(self.menu_icon)
 
-
         self.addWidget(self.main_window_btn)
         self.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
-
