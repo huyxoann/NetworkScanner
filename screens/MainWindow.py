@@ -29,13 +29,16 @@ class MainWindow(QWidget):
 
         # Màn hình scan widget
         self.scanning_widget = ScanningWidget()
-        self.scanning_widget.deviceList.itemDoubleClicked.connect(self.open_device_info)
+        self.scanning_widget.deviceList.itemDoubleClicked.connect(
+            lambda: self.open_device_info(self.scanning_widget.get_device()))
 
         self.stacked_widget.addWidget(self.scanning_widget)
 
     def open_device_info(self, device):
         # Màn hình device device detail
-        self.device_detail = DeviceDetail(device=device)
+        self.device_detail = DeviceDetail(device)
+
+        self.device_detail.device = self.scanning_widget.get_device()
 
         self.device_detail.back_button.clicked.connect(lambda: self.go_back())
 
@@ -45,5 +48,5 @@ class MainWindow(QWidget):
 
     def go_back(self):
         if self.page_stack:
-            previous_page = self.page_stack.pop()
-            self.stacked_widget.setCurrentWidget(previous_page)
+            # previous_page = self.page_stack.pop()
+            self.stacked_widget.setCurrentWidget(self.scanning_widget)

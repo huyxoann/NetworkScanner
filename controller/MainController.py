@@ -9,20 +9,7 @@ from component.CusListWidget import CusListWidget
 
 class MainController:
     def scan_network(router_ip):
-        # arp = ARP(pdst=router_ip + "/24")
-        #
-        # broadcast = Ether(dst="ff:ff:ff:ff:ff:ff")
-        # arp_request_broadcast = broadcast / arp
-        #
-        # result = srp(arp_request_broadcast, timeout=1, verbose=False)[0]
-        #
-        # devices = []
-        #
-        # for sent, received in result:
-        #     device = Device(ip=received.psrc, mac=received.hwsrc)
-        #     devices.append(device)
-        #     print(device.__str__())
-        # return devices
+
         # Tạo một gói tin ARP request
         arp = ARP(pdst=router_ip + "/24")
         # Thay đổi subnet mạng cần quét tại đây

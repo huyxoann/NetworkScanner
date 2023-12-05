@@ -1,7 +1,8 @@
 import threading
 
 from PySide6 import QtCore
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget)
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QAbstractItemView)
 
 from assets.theme import CustomTheme as theme
 from component.CusButton import CusButton
@@ -16,6 +17,20 @@ from model.Device import Device
 class ScanningWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.deviceTabLayout = None
+        self.tabWidget = None
+        self.deviceTab = None
+        self.num_devices = None
+        self.scan_btn = None
+        self.subTitle = None
+        self.network_ip = None
+        self.header_horizontal_vertical = None
+        self.title = None
+        self.header_horizontal = None
+        self.layout = None
+        self.window_layout = None
+        self.devices_info_list = []
+        self.router_ip = None
         self.setupUI(self)
 
     def setupUI(self, MainWindow):
@@ -27,6 +42,7 @@ class ScanningWidget(QWidget):
 
         # Lưu thông tin IP đang kết nối
         self.router_ip = MainController.get_router_ip()
+        self.devices_info_list = []
         self.devices = []
 
         self.window_layout = QHBoxLayout()
@@ -56,6 +72,7 @@ class ScanningWidget(QWidget):
         self.deviceTab = QWidget()
         self.deviceTabLayout = QVBoxLayout(self.deviceTab)
         self.deviceList = QListWidget()
+        self.deviceList.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
 
         self.deviceTabLayout.addWidget(self.deviceList)
         self.tabWidget.addTab(self.deviceTab, "Devices")
@@ -75,10 +92,10 @@ class ScanningWidget(QWidget):
 
     def display_devices(self):
         self.deviceList.clear()
-        self.devices = MainController.scan_network(MainController.get_router_ip())
+        self.devices_info_list = MainController.scan_network(MainController.get_router_ip())
 
-        for device_info in self.devices:
-            my_thread = threading.Thread(target=self.add_item, args=(device_info, ))
+        for device_info in self.devices_info_list:
+            my_thread = threading.Thread(target=self.add_item, args=(device_info,))
             my_thread.start()
         print("Scan Done!")
 
@@ -86,11 +103,12 @@ class ScanningWidget(QWidget):
 
     def add_item(self, device_info):
         device = Device(ip=device_info[0], mac=device_info[1])
+        self.devices.append(device)
         item = DeviceItem(device)
         self.deviceList.addItem(item)
 
     def display_num_devices(self):
-        self.num_devices.setText(f'Số thiết bị đang hoạt động: {len(self.devices)} thiết bị.')
+        self.num_devices.setText(f'Số thiết bị đang hoạt động: {len(self.devices_info_list)} thiết bị.')
 
     def get_router_ip(self):
         local_ip = MainController.get_ip()
@@ -98,7 +116,12 @@ class ScanningWidget(QWidget):
         router_ip = f'{parts[0]}.{parts[1]}.{parts[2]}.1'
         return router_ip
 
-    def open_device_info(self, item):
-        print(f'Đã nhấn vào item: {item.text()}')
+    def get_device(self):
+        current_item = self.deviceList.selectedItems()[0]
+        data = str(current_item.data(0))
+        data = data.split(' ')[1]
 
-
+        for i in range(len(self.devices)):
+            item = self.devices[i]
+            if data == item.ip:
+                return self.devices[i]
