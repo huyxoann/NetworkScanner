@@ -33,30 +33,55 @@
 # for interface in interfaces:
 #     device_type = get_device_type(interface)
 #     print(f"Giao diện: {interface}, Loại thiết bị: {device_type}")
+import time
 
 # Hàm tìm kiếm và trả về dòng chứa chuỗi trong file
-# def find_line_containing_string(file_path, search_string):
-#     with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
-#         lines = file.readlines()
-#         for line in lines:
-#             if search_string in line:
-#                 return line.strip()
-#     return None
+
+# import scapy.all as scapy
 #
-# file_path = 'data/manuf.txt'
-# search_string = '00:00:04'
+# def ping(ip):
+#     """Gửi một gói ICMP Echo Request đến một địa chỉ IP.
 #
+#     Args:
+#         ip: Địa chỉ IP của thiết bị cần ping.
 #
+#     Returns:
+#         Kết quả của lệnh ping.
+#     """
+#     packet = scapy.IP(dst=ip) / scapy.ICMP()  # Tạo gói tin ICMP Echo Request
 #
-# result_line = find_line_containing_string(file_path, search_string)
-# if result_line:
-#     print("Dòng chứa chuỗi:")
-#     print(result_line)
-# else:
-#     print("Không tìm thấy chuỗi trong file.")
+#     try:
+#         reply = scapy.sr1(packet, timeout=2, verbose=False)  # Gửi và nhận phản hồi
 #
-# shorted_name = result_line.split("\t")
-# print(shorted_name)
+#         if reply:
+#             return f"Reply from {reply.src}: bytes={len(reply)}, time={reply.time*1000:.2f} ms"
+#         else:
+#             return "Request timed out."
+#     except Exception as e:
+#         return f"Error: {str(e)}"
+#
+# result = ping("192.168.1.10")
+# print(result)
+
+import scapy.all as scapy
 
 
+def ping_to_device(ip):
+    packet = scapy.IP(dst=ip) / scapy.ICMP()  # Tạo gói tin ICMP Echo Request
 
+    try:
+        sent_time = time.time()
+        reply = scapy.sr1(packet, timeout=5, verbose=False)  # Gửi và nhận phản hồi
+        received_time = time.time()
+        if reply:
+            print(f"Reply from {reply.src}: bytes={len(reply)}, time={(received_time - sent_time) * 1000:.2f} ms")
+        else:
+            print("Request timed out.")
+    except Exception as e:
+        print(f"Error: {str(e)}")
+
+    time.sleep(1)
+
+
+result = ping_to_device("192.168.1.3")
+print(result)

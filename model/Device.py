@@ -2,13 +2,13 @@ import socket
 
 
 class Device:
-    def __init__(self, ip="", hostname="", mac="", port="", os="", connect_status="", network_protocol=""):
+    def __init__(self, ip="", hostname="", mac="", mac_vendor="", os="", netbios_name="", network_protocol=""):
         self.ip = ip
         self.hostname = hostname
         self.mac = mac
-        self.port = port
+        self.mac_vendor = mac_vendor
         self.os = os
-        self.connect_status = connect_status
+        self.netbios_name = netbios_name
         self.network_protocol = network_protocol
 
     def __str__(self):

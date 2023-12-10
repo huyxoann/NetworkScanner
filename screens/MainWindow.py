@@ -2,7 +2,9 @@ from PySide6.QtWidgets import QWidget, QStackedWidget, QVBoxLayout
 
 from assets.theme import CustomTheme as theme
 from screens.DeviceDetailWindow import DeviceDetail
+from screens.PingWindow import PingWindow
 from screens.ScanningWindow import ScanningWidget
+from screens.TracerouteWindow import TracerouteWindow
 
 
 class MainWindow(QWidget):
@@ -32,12 +34,13 @@ class MainWindow(QWidget):
         self.scanning_widget.deviceList.itemDoubleClicked.connect(
             lambda: self.open_device_info(self.scanning_widget.get_device()))
 
+        self.page_stack.append(self.scanning_widget)
+
         self.stacked_widget.addWidget(self.scanning_widget)
 
     def open_device_info(self, device):
         # Màn hình device device detail
         self.device_detail = DeviceDetail(device)
-
         self.device_detail.device = self.scanning_widget.get_device()
 
         self.device_detail.back_button.clicked.connect(lambda: self.go_back())
@@ -46,7 +49,23 @@ class MainWindow(QWidget):
         self.page_stack.append(self.device_detail)
         self.stacked_widget.setCurrentWidget(self.device_detail)
 
+        self.device_detail.ping_button.clicked.connect(lambda: self.open_ping_window())
+
     def go_back(self):
         if self.page_stack:
-            # previous_page = self.page_stack.pop()
-            self.stacked_widget.setCurrentWidget(self.scanning_widget)
+            previous_page = self.page_stack.pop()
+            self.stacked_widget.setCurrentWidget(self.page_stack[len(self.page_stack)-1])
+
+    def open_ping_window(self):
+        self.ping_window = PingWindow(self.device_detail.device)
+        self.ping_window.back_button.clicked.connect(lambda: self.go_back())
+        self.stacked_widget.addWidget(self.ping_window)
+        self.page_stack.append(self.ping_window)
+        self.stacked_widget.setCurrentWidget(self.ping_window)
+
+    def open_traceroute(self):
+        self.traceroute_window = TracerouteWindow(self.device_detail.device)
+        self.traceroute_window.back_button.clicked.connect(lambda: self.go_back())
+        self.stacked_widget.addWidget(self.traceroute_window)
+        self.page_stack.append(self.traceroute_window)
+        self.stacked_widget.setCurrentWidget(self.traceroute_window)
