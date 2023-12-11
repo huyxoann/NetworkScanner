@@ -17,7 +17,3 @@ def ping_to_device(ip):
             return []
     except Exception as e:
         print(f"Error: {str(e)}")
-
-    time.sleep(1)
-
-

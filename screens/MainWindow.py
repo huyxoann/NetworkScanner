@@ -51,6 +51,8 @@ class MainWindow(QWidget):
 
         self.device_detail.ping_button.clicked.connect(lambda: self.open_ping_window())
 
+        self.device_detail.traceroute.clicked.connect(lambda: self.open_traceroute())
+
     def go_back(self):
         if self.page_stack:
             previous_page = self.page_stack.pop()

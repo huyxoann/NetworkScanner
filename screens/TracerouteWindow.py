@@ -2,7 +2,7 @@ import socket
 
 from PySide6 import QtCore
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QScrollArea
 
 from assets.icon import CustomIcon as icon
 from assets.theme import CustomTheme as theme
@@ -52,15 +52,21 @@ class TracerouteWindow(QWidget):
         self.title = CusTitleLabel(f"Traceroute")
 
         self.app_bar_layout.addWidget(self.back_button)
+        self.app_bar_layout.addStretch(1)
         self.app_bar_layout.addWidget(self.title)
+        self.app_bar_layout.addStretch(1)
+
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
 
         self.content_box = QWidget()
         self.content_box_layout = QVBoxLayout()
 
         self.app_bar.setLayout(self.app_bar_layout)
         self.content_box.setLayout(self.content_box_layout)
+        self.scroll_area.setWidget(self.content_box)
 
         self.layout.addWidget(self.app_bar)
-        self.layout.addWidget(self.content_box)
+        self.layout.addWidget(self.scroll_area)
 
         window.setLayout(self.layout)
