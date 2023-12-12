@@ -5,6 +5,7 @@ from screens.DeviceDetailWindow import DeviceDetail
 from screens.PingWindow import PingWindow
 from screens.ScanningWindow import ScanningWidget
 from screens.TracerouteWindow import TracerouteWindow
+from screens.FindOpenPort import FindOpenPort
 
 
 class MainWindow(QWidget):
@@ -52,11 +53,12 @@ class MainWindow(QWidget):
         self.device_detail.ping_button.clicked.connect(lambda: self.open_ping_window())
 
         self.device_detail.traceroute.clicked.connect(lambda: self.open_traceroute())
+        self.device_detail.find_open_ports.clicked.connect(lambda: self.open_find_open_ports())
 
     def go_back(self):
         if self.page_stack:
             previous_page = self.page_stack.pop()
-            self.stacked_widget.setCurrentWidget(self.page_stack[len(self.page_stack)-1])
+            self.stacked_widget.setCurrentWidget(self.page_stack[len(self.page_stack) - 1])
 
     def open_ping_window(self):
         self.ping_window = PingWindow(self.device_detail.device)
@@ -71,3 +73,10 @@ class MainWindow(QWidget):
         self.stacked_widget.addWidget(self.traceroute_window)
         self.page_stack.append(self.traceroute_window)
         self.stacked_widget.setCurrentWidget(self.traceroute_window)
+
+    def open_find_open_ports(self):
+        self.find_open_ports = FindOpenPort(self.device_detail.device)
+        self.find_open_ports.back_button.clicked.connect(lambda: self.go_back())
+        self.stacked_widget.addWidget(self.find_open_ports)
+        self.page_stack.append(self.find_open_ports)
+        self.stacked_widget.setCurrentWidget(self.find_open_ports)

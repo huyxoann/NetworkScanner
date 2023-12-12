@@ -33,6 +33,8 @@
 # for interface in interfaces:
 #     device_type = get_device_type(interface)
 #     print(f"Giao diện: {interface}, Loại thiết bị: {device_type}")
+import concurrent.futures
+import threading
 import time
 
 # Hàm tìm kiếm và trả về dòng chứa chuỗi trong file
@@ -87,32 +89,85 @@ import time
 # print(result)
 
 import sys
-from scapy.all import *
-from scapy.layers.inet import ICMP, IP
+# from scapy.all import *
+# from scapy.layers.inet import ICMP, IP
+#
+#
+# def traceroute(target, max_hops=30):
+#     ttl = 1
+#     while ttl <= max_hops:
+#         pkt = IP(dst=target, ttl=ttl) / ICMP()
+#         reply = sr1(pkt, verbose=False, timeout=5)
+#
+#         if reply is None:
+#             print(f"{ttl}. *")
+#         elif reply.type == 11:
+#             print(f"{ttl}. {reply.src} (Intermediate Router)")
+#         elif reply.type == 0:
+#             print(f"{ttl}. {reply.src} (Destination Reached)")
+#             break
+#
+#         ttl += 1
+#
+#
+# if __name__ == "__main__":
+#     if len(sys.argv) != 2:
+#         print("Usage: python traceroute.py <target>")
+#     else:
+#         target = sys.argv[1]
+#         print(f"Traceroute to {target}, 30 hops max\n")
+#         traceroute(target)
+
+import socket
 
 
-def traceroute(target, max_hops=30):
-    ttl = 1
-    while ttl <= max_hops:
-        pkt = IP(dst=target, ttl=ttl) / ICMP()
-        reply = sr1(pkt, verbose=False, timeout=5)
+def find_service_by_port(port):
+    try:
+        service = socket.getservbyport(port)
+        return service
+    except OSError:
+        return "Unknown"
 
-        if reply is None:
-            print(f"{ttl}. *")
-        elif reply.type == 11:
-            print(f"{ttl}. {reply.src} (Intermediate Router)")
-        elif reply.type == 0:
-            print(f"{ttl}. {reply.src} (Destination Reached)")
-            break
 
-        ttl += 1
+def find_open_ports_with_service(hostname, start_port, end_port):
+    open_ports = []
+
+    for port in range(start_port, end_port + 1):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(0.1)
+            result = s.connect_ex((hostname, port))
+
+            if result == 0:
+                service = find_service_by_port(port)
+                open_ports.append((port, service))
+
+    return open_ports
+
+def open_ports_with_service(target, start_port, end_port):
+    open_ports_with_service = find_open_ports_with_service(target, start_port, end_port)
+    if open_ports_with_service:
+        print(f"Open ports with services on {target}:")
+        for port, service in open_ports_with_service:
+            print(f"Port {port}: {service}")
+    else:
+        print(f"No open ports found on {target}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python traceroute.py <target>")
-    else:
-        target = sys.argv[1]
-        print(f"Traceroute to {target}, 30 hops max\n")
-        traceroute(target)
+    def run_find_open_ports():
+        thread1 = threading.Thread(target=open_ports_with_service, args=("localhost", 1, 256))
+        thread2 = threading.Thread(target=open_ports_with_service, args=("localhost", 257, 512))
+        thread3 = threading.Thread(target=open_ports_with_service, args=("localhost", 513, 768))
+        thread4 = threading.Thread(target=open_ports_with_service, args=("localhost", 769, 1024))
+        thread1.start()
+        thread2.start()
+        thread3.start()
+        thread4.start()
+        # with concurrent.futures.ThreadPoolExecutor() as executor:
+        #     future = executor.submit(open_ports_with_service, "localhost", 1, 256)
+        #     result = future.result()
+        # return result
+
+    run_find_open_ports()
+
 
