@@ -3,14 +3,17 @@ import socket
 from PySide6 import QtCore
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
+from wakeonlan import send_magic_packet
+
+from model.Device import Device
 
 from assets.icon import CustomIcon as icon
 from assets.theme import CustomTheme as theme
 from component.CusButton import CusButton
 from component.CusNormalLabel import CusNormalLabel
-from model.Device import Device
 from component.CusTitleLabel import CusTitleLabel
 from component.CusToolButton import CusToolButton
+from component.MessageDialog import MessageDialog
 
 from controller.get_mac_vendor import get_mac_vendor
 from controller.get_hostname_by_ip import get_hostname_by_ip
@@ -49,9 +52,7 @@ class DeviceDetail(QWidget):
         self.app_bar_layout = QHBoxLayout()
         self.app_bar_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
 
-        self.back_arrow_icon = QIcon(icon.back_arrow)
-        self.back_button = CusToolButton(self.back_arrow_icon, "<==")
-        self.back_button.setIcon(self.back_arrow_icon)
+        self.back_button = CusToolButton(icon.back_arrow, "Back")
 
         self.title = CusTitleLabel(f"Device Detail: ")
 
@@ -78,20 +79,21 @@ class DeviceDetail(QWidget):
         self.manage_device_items_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
 
         # Ping button
-        self.ping_button = CusButton("Ping")
+        self.ping_button = CusToolButton(icon.trend_up_icon, "Ping")
         self.manage_device_items_layout.addWidget(self.ping_button)
 
         # Traceroute button
-        self.traceroute = CusButton("Traceroute")
+        self.traceroute = CusToolButton(icon.router, "Traceroute")
         self.manage_device_items_layout.addWidget(self.traceroute)
 
         # Find open ports
-        self.find_open_ports = CusButton("Find open ports")
+        self.find_open_ports = CusToolButton(icon.open_port, "Find open ports")
         self.manage_device_items_layout.addWidget(self.find_open_ports)
 
         # Wake on LAN
-        self.wake_on_lan = CusButton("Wake on LAN")
+        self.wake_on_lan = CusToolButton(icon.shutdown, "Wake on LAN")
         self.manage_device_items_layout.addWidget(self.wake_on_lan)
+        # self.wake_on_lan.clicked.connect(lambda: self.run_wake_on_lan)
 
         # Network Details Box
         self.network_details_widget = QWidget()
@@ -154,6 +156,16 @@ class DeviceDetail(QWidget):
         device.netbios_name = device.hostname if device.hostname != "Generic" else "--"
 
         device.os = get_os_using_scapy(device.ip)
+
+    def run_wake_on_lan(self):
+        send_magic_packet(self.device.mac)
+        self.show_dialog()
+
+
+    def show_dialog(self):
+        self.message_dialog = MessageDialog()
+        self.message_dialog.exec_()
+
 
 
 

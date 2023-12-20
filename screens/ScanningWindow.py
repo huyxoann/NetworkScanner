@@ -5,13 +5,18 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QAbstractItemView)
 
 from assets.theme import CustomTheme as theme
+from assets.icon import CustomIcon as icon
 from component.CusButton import CusButton
 from component.CusListWidgetItem import DeviceItem
 from component.CusNormalLabel import CusNormalLabel
 from component.CusTabWidget import CusTabWidget
 from component.CusTitleLabel import CusTitleLabel
+from component.CusToolButton import CusToolButton
 from controller.MainController import MainController
+from controller.get_public_ip import get_public_ip
 from model.Device import Device
+
+
 
 
 class ScanningWidget(QWidget):
@@ -57,7 +62,7 @@ class ScanningWidget(QWidget):
         self.header_horizontal_vertical = QVBoxLayout()
         self.network_ip = CusNormalLabel(f"Mạng đang kết nối: {MainController.get_network_name()}")
         self.subTitle = CusNormalLabel("Nhấn 'Scan' để quét các thiết bị trong mạng")
-        self.scan_btn = CusButton("Scan")
+        self.scan_btn = CusToolButton(icon.scanIcon, "Scan")
         self.scan_btn.clicked.connect(lambda: self.display_devices())
 
         self.num_devices = CusNormalLabel("Số thiết bị hoạt động: Nhấn Scan để xem")
@@ -69,13 +74,27 @@ class ScanningWidget(QWidget):
         self.header_horizontal_vertical.setSpacing(20)
 
         self.tabWidget = CusTabWidget()
+        # Device Tab
         self.deviceTab = QWidget()
         self.deviceTabLayout = QVBoxLayout(self.deviceTab)
         self.deviceList = QListWidget()
         self.deviceList.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
-
         self.deviceTabLayout.addWidget(self.deviceList)
+
+        #Network Tab
+        self.networkTab = QWidget()
+        self.networkTabLayout = QVBoxLayout(self.networkTab)
+        self.networkTabLayout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+
+        self.network_name = CusTitleLabel(f'{MainController.get_network_name()}')
+        self.public_ip = CusNormalLabel(f'Public IP: {get_public_ip()}')
+
+        self.networkTabLayout.addWidget(self.network_name)
+        self.networkTabLayout.addWidget(self.public_ip)
+
+
         self.tabWidget.addTab(self.deviceTab, "Devices")
+        self.tabWidget.addTab(self.networkTab, "Network")
 
         self.header_horizontal.addWidget(self.title)
         self.header_horizontal.addLayout(self.header_horizontal_vertical)

@@ -176,7 +176,7 @@ class FindOpenPort(QWidget):
         ports = self.run_find_open_ports()
         self.results_value.setPlainText(f"Open ports with services on {self.device.ip}:")
         self.results_value.repaint()
-        if ports is None:
+        if len(ports) == 0:
             self.results_value.setPlainText(self.results_value.toPlainText() + f"\nNo open ports found on {self.device.ip}")
             self.results_value.repaint()
         else:

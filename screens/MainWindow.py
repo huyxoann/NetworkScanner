@@ -6,7 +6,7 @@ from screens.PingWindow import PingWindow
 from screens.ScanningWindow import ScanningWidget
 from screens.TracerouteWindow import TracerouteWindow
 from screens.FindOpenPort import FindOpenPort
-
+from wakeonlan import send_magic_packet
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -51,9 +51,9 @@ class MainWindow(QWidget):
         self.stacked_widget.setCurrentWidget(self.device_detail)
 
         self.device_detail.ping_button.clicked.connect(lambda: self.open_ping_window())
-
         self.device_detail.traceroute.clicked.connect(lambda: self.open_traceroute())
         self.device_detail.find_open_ports.clicked.connect(lambda: self.open_find_open_ports())
+        self.device_detail.wake_on_lan.clicked.connect(lambda: self.device_detail.run_wake_on_lan())
 
     def go_back(self):
         if self.page_stack:
@@ -80,3 +80,6 @@ class MainWindow(QWidget):
         self.stacked_widget.addWidget(self.find_open_ports)
         self.page_stack.append(self.find_open_ports)
         self.stacked_widget.setCurrentWidget(self.find_open_ports)
+
+    # def wake_on_lan(self):
+

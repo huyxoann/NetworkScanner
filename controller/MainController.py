@@ -43,7 +43,7 @@ class MainController:
         output = os.popen('netsh wlan show interfaces').read()
         start = output.find('SSID') + 7
         end = output.find('\n', start)
-        return output[start:end].strip()
+        return output[start:end].strip().replace(':','')
 
     def get_ip(self=None):
         sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
