@@ -171,18 +171,16 @@
 #     run_find_open_ports()
 #
 #
-import psutil
+import subprocess
 
-def get_network_type():
-    interfaces = psutil.net_if_stats()
-    for interface, status in interfaces.items():
-        if status.isup:
-            if status.type == psutil.AF_LINK:
-                return f"Interface {interface} là kết nối Ethernet."
-            elif status.type == psutil.AF_INET:
-                return f"Interface {interface} là kết nối Wi-Fi hoặc khác."
-    return "Không có kết nối mạng hoặc không xác định được loại kết nối."
+bssid = subprocess.check_output(["netsh", "wlan", "show", "interfaces"]).decode("utf-8")
+result = ''
+for i in range(7):
+    if i == 0 or i == 6:
+        result = result + bssid.split("BSSID")[1].split(":")[i].strip()
+    else:
+        result = result + bssid.split("BSSID")[1].split(":")[i].strip() + ":"
+print(result.split("\n")[0].upper())
 
-if __name__ == "__main__":
-    network_type = get_network_type()
-    print(network_type)
+
+

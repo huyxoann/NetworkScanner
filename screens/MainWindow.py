@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QStackedWidget, QVBoxLayout
 
 from assets.theme import CustomTheme as theme
 from screens.DeviceDetailWindow import DeviceDetail
+from screens.PingToolWindow import PingToolWindow
 from screens.PingWindow import PingWindow
 from screens.ScanningWindow import ScanningWidget
 from screens.TracerouteWindow import TracerouteWindow
@@ -35,9 +36,14 @@ class MainWindow(QWidget):
         self.scanning_widget.deviceList.itemDoubleClicked.connect(
             lambda: self.open_device_info(self.scanning_widget.get_device()))
 
+        self.scanning_widget.ping_button.clicked.connect(lambda: self.open_ping_tool_window())
+
         self.page_stack.append(self.scanning_widget)
 
         self.stacked_widget.addWidget(self.scanning_widget)
+
+    def open_ping_tool_window(self):
+        self.ping_tool_window = PingToolWindow()
 
     def open_device_info(self, device):
         # Màn hình device device detail
@@ -54,6 +60,7 @@ class MainWindow(QWidget):
         self.device_detail.traceroute.clicked.connect(lambda: self.open_traceroute())
         self.device_detail.find_open_ports.clicked.connect(lambda: self.open_find_open_ports())
         self.device_detail.wake_on_lan.clicked.connect(lambda: self.device_detail.run_wake_on_lan())
+
 
     def go_back(self):
         if self.page_stack:

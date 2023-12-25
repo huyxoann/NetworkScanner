@@ -2,7 +2,7 @@ import threading
 
 from PySide6 import QtCore
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QAbstractItemView)
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QAbstractItemView, QGridLayout)
 
 from assets.theme import CustomTheme as theme
 from assets.icon import CustomIcon as icon
@@ -10,18 +10,19 @@ from component.CusButton import CusButton
 from component.CusListWidgetItem import DeviceItem
 from component.CusNormalLabel import CusNormalLabel
 from component.CusTabWidget import CusTabWidget
+from component.CusTextInput import CusTextInput
 from component.CusTitleLabel import CusTitleLabel
 from component.CusToolButton import CusToolButton
 from controller.MainController import MainController
 from controller.get_public_ip import get_public_ip
+from controller.get_bssid import get_bssid
 from model.Device import Device
-
-
 
 
 class ScanningWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.ip_input = None
         self.deviceTabLayout = None
         self.tabWidget = None
         self.deviceTab = None
@@ -60,12 +61,12 @@ class ScanningWidget(QWidget):
 
         # Layout này nằm trong phần layout heading
         self.header_horizontal_vertical = QVBoxLayout()
-        self.network_ip = CusNormalLabel(f"Mạng đang kết nối: {MainController.get_network_name()}")
-        self.subTitle = CusNormalLabel("Nhấn 'Scan' để quét các thiết bị trong mạng")
+        self.network_ip = CusNormalLabel(f"Network is connecting: {MainController.get_network_name()}")
+        self.subTitle = CusNormalLabel("Press 'Scan' to scan devices in network")
         self.scan_btn = CusToolButton(icon.scanIcon, "Scan")
         self.scan_btn.clicked.connect(lambda: self.display_devices())
 
-        self.num_devices = CusNormalLabel("Số thiết bị hoạt động: Nhấn Scan để xem")
+        self.num_devices = CusNormalLabel("Devices are available: Press Scan to see")
 
         self.header_horizontal_vertical.addWidget(self.network_ip)
         self.header_horizontal_vertical.addWidget(self.subTitle)
@@ -81,7 +82,7 @@ class ScanningWidget(QWidget):
         self.deviceList.setSelectionMode(QListWidget.SelectionMode.SingleSelection)
         self.deviceTabLayout.addWidget(self.deviceList)
 
-        #Network Tab
+        # Network Tab
         self.networkTab = QWidget()
         self.networkTabLayout = QVBoxLayout(self.networkTab)
         self.networkTabLayout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
@@ -89,12 +90,60 @@ class ScanningWidget(QWidget):
         self.network_name = CusTitleLabel(f'{MainController.get_network_name()}')
         self.public_ip = CusNormalLabel(f'Public IP: {get_public_ip()}')
 
+        self.access_points_label = CusTitleLabel("Access Points")
+        self.access_points_widget = QWidget()
+        self.access_points_layout = QGridLayout(self.access_points_widget)
+
+        self.ssid_label = CusNormalLabel("SSID")
+        self.ssid_value = CusNormalLabel(f'{MainController.get_network_name()}')
+        self.bssid_label = CusNormalLabel("BSSID")
+        self.bssid_value = CusNormalLabel(f'{get_bssid()}')
+
+        self.access_points_layout.addWidget(self.ssid_label, 0, 0)
+        self.access_points_layout.addWidget(self.ssid_value, 0, 1)
+        self.access_points_layout.addWidget(self.bssid_label, 1, 0)
+        self.access_points_layout.addWidget(self.bssid_value, 1, 1)
+
+        self.network_setup_label = CusTitleLabel("Network Setup")
+        self.network_setup_widget = QWidget()
+        self.network_setup_layout = QGridLayout(self.network_setup_widget)
+
+        self.netmask_label = CusNormalLabel("Netmask")
+        self.netmask_value = CusNormalLabel(f'192.168.1.0/24')
+        self.gateway_label = CusNormalLabel("Gateway")
+        self.gateway_value = CusNormalLabel(f'192.168.1.1')
+
+        self.network_setup_layout.addWidget(self.netmask_label, 0, 0)
+        self.network_setup_layout.addWidget(self.netmask_value, 0, 1)
+        self.network_setup_layout.addWidget(self.gateway_label, 1, 0)
+        self.network_setup_layout.addWidget(self.gateway_value, 1, 1)
+
         self.networkTabLayout.addWidget(self.network_name)
         self.networkTabLayout.addWidget(self.public_ip)
+        self.networkTabLayout.addWidget(self.access_points_label)
+        self.networkTabLayout.addWidget(self.access_points_widget)
+        # self.networkTabLayout.addWidget(self.network_setup_label)
+        # self.networkTabLayout.addWidget(self.network_setup_widget)
 
+        # Tool tab
+        self.toolTab = QWidget()
+        self.toolTabLayout = QVBoxLayout(self.toolTab)
+        self.toolTabLayout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+
+        self.ping_widget = QWidget()
+        self.ping_layout = QHBoxLayout(self.ping_widget)
+        self.ip_input = CusTextInput()
+        self.ping_button = CusButton("Ping!")
+        self.traceroute_button = CusButton("Traceroute!")
+        self.ping_layout.addWidget(self.ping_button)
+        self.ping_layout.addWidget(self.traceroute_button)
+
+        # self.toolTabLayout.addWidget(self.ip_input)
+        self.toolTabLayout.addWidget(self.ping_widget)
 
         self.tabWidget.addTab(self.deviceTab, "Devices")
         self.tabWidget.addTab(self.networkTab, "Network")
+        # self.tabWidget.addTab(self.toolTab, "Tool")
 
         self.header_horizontal.addWidget(self.title)
         self.header_horizontal.addLayout(self.header_horizontal_vertical)
@@ -127,7 +176,7 @@ class ScanningWidget(QWidget):
         self.deviceList.addItem(item)
 
     def display_num_devices(self):
-        self.num_devices.setText(f'Số thiết bị đang hoạt động: {len(self.devices_info_list)} thiết bị.')
+        self.num_devices.setText(f'Devices are available: {len(self.devices_info_list)} devices.')
 
     def get_router_ip(self):
         local_ip = MainController.get_ip()

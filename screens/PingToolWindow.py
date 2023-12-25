@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QL
 from assets.icon import CustomIcon as icon
 from assets.theme import CustomTheme as theme
 from component.CusButton import CusButton
-from component.CusNormalLabel import CusNormalLabel
+from component.CusTextInput import CusTextInput
 from component.PingItemElement import PingItemElement
 from model.Device import Device
 from component.CusTitleLabel import CusTitleLabel
@@ -18,8 +18,8 @@ from assets.icon import CustomIcon
 from controller.ping import ping_to_device
 
 
-class PingWindow(QWidget):
-    def __init__(self, device):
+class PingToolWindow(QWidget):
+    def __init__(self):
         super().__init__()
         self.layout = None
         self.app_bar = None
@@ -27,9 +27,9 @@ class PingWindow(QWidget):
         self.back_arrow_icon = None
         self.back_button = None
         self.device = None
-        self.setupUI(self, device=device)
+        self.setupUI(self)
 
-    def setupUI(self, window, device: Device):
+    def setupUI(self, window):
 
         if not window.objectName():
             window.setObjectName(u"Widget")
@@ -37,7 +37,6 @@ class PingWindow(QWidget):
         window.setWindowTitle("Network Scanner")
         window.setStyleSheet(f'background-color: {theme.backgroundColor};')
 
-        self.device = device
 
         self.layout = QVBoxLayout()
         self.layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
@@ -68,7 +67,8 @@ class PingWindow(QWidget):
         self.content_box = QWidget()
         self.content_box_layout = QVBoxLayout()
 
-        self.target_host_box = PingItemElement(CustomIcon.desktop_icon, "Target host", self.device.hostname)
+        self.ip_input = CusTextInput()
+        self.target_host_box = PingItemElement(CustomIcon.desktop_icon, "Target host", self.ip_input.text())
         self.average_ping_box = PingItemElement(CustomIcon.trend_up_icon, "Average ping")
         self.minimum_ping_box = PingItemElement(CustomIcon.arrow_down, "Minimum ping")
         self.maximum_ping_box = PingItemElement(CustomIcon.arrow_up, "Maximum ping")
@@ -105,6 +105,7 @@ class PingWindow(QWidget):
         self.app_bar.setLayout(self.app_bar_layout)
 
         self.content_box.setLayout(self.content_box_layout)
+        self.content_box_layout.addWidget(self.ip_input)
         self.content_box_layout.addWidget(self.target_host_box)
         self.content_box_layout.addWidget(self.average_ping_box)
         self.content_box_layout.addWidget(self.minimum_ping_box)
@@ -119,39 +120,39 @@ class PingWindow(QWidget):
 
         window.setLayout(self.layout)
 
-    def display_ping_chart(self):
-
-        self.series.clear()
-
-        maximum_ping = 0.0
-        minimum_ping = 0.0
-        average = 0.0
-        sum = 0.0
-        packet_lost = 0
-        counter = 0
-
-        for i in range(10):
-            data = ping_to_device(self.device.ip)
-
-            if data:
-                counter += 1
-                sum += data[2]
-                if minimum_ping == 0.0: minimum_ping = data[2]
-                if data[2] >= maximum_ping: maximum_ping = data[2]
-                if data[2] <= minimum_ping: minimum_ping = data[2]
-                average = sum/counter
-
-                self.maximum_ping_box.setValue(f'{maximum_ping:.2f} ms')
-                self.minimum_ping_box.setValue(f'{minimum_ping:.2f} ms')
-                self.average_ping_box.setValue(f'{average:.2f} ms')
-
-                # self.axis_y.setRange(minimum_ping, maximum_ping)
-
-                self.series.append(i, data[2])
-
-                self.chart_view.repaint()
-                time.sleep(0.5)
-            else:
-                break
-
-            self.packet_lost_box.setValue(f'{packet_lost / 1 * 100} %')
+    # def display_ping_chart(self):
+    #
+    #     self.series.clear()
+    #
+    #     maximum_ping = 0.0
+    #     minimum_ping = 0.0
+    #     average = 0.0
+    #     sum = 0.0
+    #     packet_lost = 0
+    #     counter = 0
+    #
+    #     for i in range(10):
+    #         data = ping_to_device(self.ip_input.text())
+    #
+    #         if data:
+    #             counter += 1
+    #             sum += data[2]
+    #             if minimum_ping == 0.0: minimum_ping = data[2]
+    #             if data[2] >= maximum_ping: maximum_ping = data[2]
+    #             if data[2] <= minimum_ping: minimum_ping = data[2]
+    #             average = sum/counter
+    #
+    #             self.maximum_ping_box.setValue(f'{maximum_ping:.2f} ms')
+    #             self.minimum_ping_box.setValue(f'{minimum_ping:.2f} ms')
+    #             self.average_ping_box.setValue(f'{average:.2f} ms')
+    #
+    #             # self.axis_y.setRange(minimum_ping, maximum_ping)
+    #
+    #             self.series.append(i, data[2])
+    #
+    #             self.chart_view.repaint()
+    #             time.sleep(0.5)
+    #         else:
+    #             break
+    #
+    #         self.packet_lost_box.setValue(f'{packet_lost / 1 * 100} %')
