@@ -1,11 +1,10 @@
 import threading
 
 from PySide6 import QtCore
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QAbstractItemView, QGridLayout)
+from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QGridLayout)
 
-from assets.theme import CustomTheme as theme
 from assets.icon import CustomIcon as icon
+from assets.theme import CustomTheme as theme
 from component.CusButton import CusButton
 from component.CusListWidgetItem import DeviceItem
 from component.CusNormalLabel import CusNormalLabel
@@ -14,8 +13,8 @@ from component.CusTextInput import CusTextInput
 from component.CusTitleLabel import CusTitleLabel
 from component.CusToolButton import CusToolButton
 from controller.MainController import MainController
-from controller.get_public_ip import get_public_ip
 from controller.get_bssid import get_bssid
+from controller.get_public_ip import get_public_ip
 from model.Device import Device
 
 
